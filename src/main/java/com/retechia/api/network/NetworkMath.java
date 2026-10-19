@@ -44,9 +44,12 @@ final class NetworkMath {
     }
 
     static int cidrForHosts(int hosts) {
-        int needed = hosts + 2;
+        if (hosts < 1) {
+            throw new IllegalArgumentException("El numero de hosts debe ser positivo.");
+        }
+        long needed = (long) hosts + 2;
         int bits = 0;
-        int capacity = 1;
+        long capacity = 1;
 
         while (capacity < needed) {
             capacity *= 2;

@@ -6,10 +6,30 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class SubnetPlannerServiceTest {
 
     private final SubnetPlannerService service = new SubnetPlannerService();
+
+    @Test
+    @Timeout(2)
+    void largeHostCountsDoNotOverflowOrLoopForever() {
+        assertThat(NetworkMath.cidrForHosts(Integer.MAX_VALUE)).isZero();
+        assertThat(NetworkMath.cidrForHosts(1_073_741_824)).isEqualTo(1);
+        assertThatThrownBy(() -> service.plan(new SubnetPlanRequest(
+                "192.168.10.0/24", List.of(new DepartmentRequirement("Grande", Integer.MAX_VALUE))
+        ))).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("no tiene espacio suficiente");
+    }
+
+    @Test
+    void rejectsNonPositiveHostCountsAtTheDomainBoundary() {
+        assertThatThrownBy(() -> NetworkMath.cidrForHosts(0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> NetworkMath.cidrForHosts(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 
     @Test
     void createsSubnetPlanOrderedByLargestDepartment() {

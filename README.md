@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.png" width="160" alt="Logo de Retech.IA" /></p>
+
 <p align="center"><img src="assets/banner.svg" width="100%" alt="Retech.IA: planificación de redes e infraestructura" /></p>
 
 <p align="center">
